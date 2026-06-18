@@ -1,0 +1,375 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>유동성 화장실 · 러달</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css">
+<style>
+  :root{
+    --bg:#E8F2F6;--tileA:#fff;--tileB:#F0F6F9;--line:#D9E6ED;--panel:#fff;
+    --text:#173341;--muted:#5F7B8B;--soft:#86A0AE;
+    --water:#22A5C4;--waterDeep:#0E7490;--surface:#7DD3FC;
+    --net:#10B981;--tga:#F59E0B;--rrp:#8B5CF6;--res:#2563EB;--red:#EF4444;--sea:#3BA7D9;
+    --font:'Pretendard Variable',Pretendard,-apple-system,BlinkMacSystemFont,system-ui,'Malgun Gothic',sans-serif;
+    --mono:ui-monospace,'SF Mono','JetBrains Mono',Menlo,monospace;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--text);font-family:var(--font);padding:20px 16px 36px}
+  h1{margin:3px 0 0;font-size:24px;font-weight:800;letter-spacing:-.5px;display:flex;align-items:center;flex-wrap:wrap;gap:9px}
+  .eyebrow{font-size:11px;letter-spacing:3px;color:var(--soft);font-family:var(--mono)}
+  .rate{cursor:pointer;font-family:var(--mono);font-size:12.5px;font-weight:700;color:var(--red);background:#FEF2F2;border:1px solid #EF444444;border-radius:8px;padding:3px 9px}
+  .sub{font-size:12.5px;color:var(--muted);margin-top:3px}
+  .head{display:flex;flex-wrap:wrap;justify-content:space-between;align-items:flex-start;gap:10px}
+  .btn{display:inline-flex;align-items:center;gap:6px;background:var(--water);color:#fff;border:1px solid #0E749033;border-radius:9px;padding:8px 13px;font-size:12.5px;font-weight:600;cursor:pointer;font-family:var(--font)}
+  .btn:hover{background:#1893b0}.btn.ghost{background:#fff;color:var(--muted);border:1px solid var(--line)}
+  .btn.ghost:hover{background:var(--bg);color:var(--text)}
+  .card{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:16px;box-shadow:0 1px 3px #1733410d}
+  .grid{display:grid;grid-template-columns:1.1fr 1fr;gap:13px;margin-top:13px}
+  @media(max-width:780px){.grid{grid-template-columns:1fr}}
+  .tag{font-size:10.5px;letter-spacing:1.4px;color:var(--soft);font-family:var(--mono);text-transform:uppercase}
+  .chip{font-size:11.5px;color:var(--text);background:var(--panel);border:1px solid var(--line);border-radius:7px;padding:4px 10px;font-family:var(--mono)}
+  .diag{display:flex;flex-wrap:wrap;gap:7px;margin-top:11px;align-items:center}
+  .regimepill{font-family:var(--mono);font-weight:700;font-size:12px;color:#fff;border-radius:7px;padding:4px 11px}
+  .inp{display:block;width:100%;margin-top:3px;padding:7px 9px;font-size:13px;font-family:var(--mono);color:var(--text);background:#fff;border:1px solid var(--line);border-radius:7px}
+  .inp:focus{outline:none;border-color:var(--water);box-shadow:0 0 0 2px #22A5C433}
+  .formgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(120px,1fr));gap:9px;margin-top:9px}
+  .range{-webkit-appearance:none;width:100%;height:5px;border-radius:5px;margin-top:7px;background:var(--line)}
+  .range::-webkit-slider-thumb{-webkit-appearance:none;width:18px;height:18px;border-radius:50%;background:var(--water);cursor:pointer;border:2px solid #fff;box-shadow:0 0 0 1px var(--water)}
+  .range::-moz-range-thumb{width:16px;height:16px;border-radius:50%;background:var(--water);cursor:pointer;border:2px solid #fff}
+  .tubwrap{position:relative}
+  .bubble{position:absolute;background:#ffffffee;border:1px solid #C9DDE7;border-radius:13px;padding:7px 9px;max-width:165px;box-shadow:0 5px 16px #17334122;backdrop-filter:blur(2px);pointer-events:none}
+  @media(max-width:520px){.bubble{max-width:120px;padding:5px 7px}}
+  .bubrow{display:flex;gap:6px;align-items:flex-start}
+  .bubemoji{font-size:17px;line-height:1}.bubwho{font-family:var(--mono);font-size:9.5px;font-weight:700}
+  .bubmsg{font-size:10.6px;color:var(--text);line-height:1.4;margin-top:1px}
+  @media(max-width:520px){.bubmsg{font-size:9.3px}}
+  .barwrap{cursor:pointer;margin-top:9px}.barhead{display:flex;justify-content:space-between;font-size:12px;margin-bottom:3px}
+  .bartrack{height:9px;background:var(--bg);border-radius:5px;overflow:hidden}.barfill{height:100%;border-radius:5px;transition:width .4s ease}
+  .minitag{font-family:var(--mono);font-size:9.5px;letter-spacing:1px;border-radius:4px;padding:1px 6px;border:1px solid}
+  .evbox{margin-top:12px;background:var(--bg);border:1px solid var(--line);border-radius:9px;padding:10px 11px}
+  .evrow{display:flex;gap:8px;font-size:12px;line-height:1.5;margin-top:6px}.evk{flex:0 0 52px;color:var(--soft);font-family:var(--mono);font-size:10.5px;padding-top:1px}
+  .foot{font-size:11px;color:var(--muted);margin-top:13px;line-height:1.6}
+  .wave>*{animation:wv 3.4s ease-in-out infinite}@keyframes wv{0%,100%{transform:translateX(0)}50%{transform:translateX(-22px)}}
+  .swirl{animation:sp 2.6s linear infinite}@keyframes sp{to{transform:rotate(360deg)}}
+  .wv2x{animation:wv2 2.6s ease-in-out infinite}@keyframes wv2{0%,100%{transform:translateX(0)}50%{transform:translateX(8px)}}
+  @media(prefers-reduced-motion:reduce){.wave>*,.swirl{animation:none!important}}
+</style>
+</head>
+<body>
+<div class="head">
+  <div>
+    <div class="eyebrow">러달 · 미장 분석 연구소</div>
+    <h1>유동성 <span style="color:var(--water)">화장실</span> <span class="rate" data-part="thermometer" id="rateBadge"></span></h1>
+    <div class="sub">강의 항목을 화장실 사물로. 무엇이든 눌러 해석과 데이터·근거를 봐. 주차를 끌면 흐름이 보여.</div>
+  </div>
+  <button class="btn" id="toggleForm">⚙ 주간 데이터 입력 ▾</button>
+</div>
+
+<div id="formBox"></div>
+<div class="diag" id="diag"></div>
+
+<div class="grid">
+  <div class="card">
+    <div class="tubwrap" id="tubwrap">
+      <div id="tub"></div>
+    </div>
+    <div style="margin-top:10px">
+      <div style="display:flex;justify-content:space-between;font-size:11px;color:var(--muted);font-family:var(--mono)" id="rangeLabels"></div>
+      <input type="range" class="range" id="weekRange" min="0" value="0">
+    </div>
+  </div>
+
+  <div style="display:flex;flex-direction:column;gap:13px">
+    <div class="card">
+      <div class="tag">순유동성 · 흐르는 물</div>
+      <div id="netBig"></div>
+      <div id="netFormula" style="font-size:11.5px;color:var(--muted);margin-top:6px;font-family:var(--mono)"></div>
+      <div id="netMeta" style="display:flex;gap:10px;margin-top:9px;font-size:10.5px;font-family:var(--mono)"></div>
+    </div>
+    <div class="card">
+      <div class="tag">세 잔고 · 욕조의 세 칸</div>
+      <div id="bars"></div>
+    </div>
+    <div class="card" id="interp"></div>
+  </div>
+</div>
+
+<div class="card" style="margin-top:13px">
+  <div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:6px">
+    <div class="tag">추이 · 순유동성(초록) vs TGA(노랑)</div>
+    <span style="font-size:11px;color:var(--muted)">TGA가 부풀면 순유동성이 빠진다 — 클릭해 그 주로 이동</span>
+  </div>
+  <div id="chart"></div>
+</div>
+
+<div class="foot">
+  단위 십억 달러($B), 표시는 조. 순유동성 = 총자산 − TGA − RRP. 욕조 물 = 부채측 잔고(가둔 물 + 흐르는 물),
+  국채·MBS(자산측)는 수도꼭지·배수구 흐름으로 표현 — 회계 양변. 시드는 예시 추세이니
+  <b style="color:var(--text)">[주간 데이터 입력]</b>으로 매주 직접 갱신해. 교육·참고용, 투자 권유 아님.
+</div>
+
+<script>
+const C={water:"#22A5C4",waterDeep:"#0E7490",surface:"#7DD3FC",net:"#10B981",tga:"#F59E0B",rrp:"#8B5CF6",res:"#2563EB",red:"#EF4444",sea:"#3BA7D9",muted:"#5F7B8B",soft:"#86A0AE",text:"#173341",line:"#D9E6ED",bg:"#E8F2F6",porcEdge:"#CADCE5",chrome:"#9FB0BA"};
+const MONO="ui-monospace,'SF Mono','JetBrains Mono',Menlo,monospace";
+let data=[
+ {d:"04/15",totalAssets:6670,treasuries:4180,mbs:2210,tga:1010,rrp:40,reserves:2860,effr:3.83,m2:21850},
+ {d:"04/22",totalAssets:6668,treasuries:4178,mbs:2206,tga:960,rrp:42,reserves:2900,effr:3.83,m2:21880},
+ {d:"04/29",totalAssets:6672,treasuries:4180,mbs:2202,tga:880,rrp:48,reserves:2980,effr:3.83,m2:21920},
+ {d:"05/06",totalAssets:6675,treasuries:4182,mbs:2198,tga:850,rrp:50,reserves:3010,effr:3.83,m2:21950},
+ {d:"05/13",totalAssets:6678,treasuries:4185,mbs:2194,tga:830,rrp:52,reserves:3030,effr:3.83,m2:21980},
+ {d:"05/20",totalAssets:6680,treasuries:4186,mbs:2190,tga:870,rrp:45,reserves:2995,effr:3.83,m2:22010},
+ {d:"05/27",totalAssets:6685,treasuries:4189,mbs:2186,tga:900,rrp:40,reserves:2965,effr:3.83,m2:22030},
+ {d:"06/03",totalAssets:6690,treasuries:4192,mbs:2182,tga:880,rrp:38,reserves:2990,effr:3.83,m2:22060},
+ {d:"06/10",totalAssets:6700,treasuries:4196,mbs:2178,tga:860,rrp:40,reserves:3010,effr:3.83,m2:22090},
+].map(r=>({...r,net:r.totalAssets-r.tga-r.rrp,live:false}));
+let idx=data.length-1, sel="net";
+const tn=b=>(b/1000).toFixed(2), bn=b=>Math.round(b).toLocaleString();
+const reduce=window.matchMedia("(prefers-reduced-motion:reduce)").matches;
+
+const PARTS={
+ faucet_qe:{label:"온수 꼭지 · QE / 자산매입",lec:"5강 QE/QT",color:C.water,
+  interp:"연준이 국채를 사서 물을 콸콸 붓는 통로. QE면 욕조 물(총자산) 전체가 불어난다. 지금은 QT가 끝나(2025.12) 콸콸은 멈춘 상태.",
+  evidence:[["출처","H.4.1 · FRED WSHOSHO(국채), WALCL(총자산)"],["읽는 법","국채 보유 증가 = 진짜 유동성 주입. FOMC로 페이스 예고"],["신호","총자산 우상향=유입 우위, 횡보=중립"]],
+  metric:c=>`국채 ${bn(c.treasuries)} B · 총자산 $${tn(c.totalAssets)}조`},
+ faucet_rmp:{label:"냉수 꼭지 · RMP",lec:"7강 안전망",color:C.res,
+  interp:"준비금 관리 매입. 욕조 물이 자연 감소(유통화폐·TGA 증가)하는 걸 메우는 졸졸 보충. 본원통화를 직접 늘리는 진짜 주입이라 QE 축소판.",
+  evidence:[["출처","뉴욕연준 RMP 발표(2025.12.10~)"],["읽는 법","GSE 매입(베센트)과 구분 — GSE는 자체 자금이라 스프레드 압축에 그침"],["신호","RMP 확대 = 준비금 바닥 방어"]]},
+ faucet_mbs:{label:"측면 꼭지 · MBS",lec:"6강 MBS",color:"#0EA5A0",
+  interp:"연준 자산의 숨은 절반. 만기·조기상환으로 천천히 새는데, 금리 올리면 조기상환이 줄어 오히려 안 빠지는 역설이 핵심. 월 ~$15B 런오프 중.",
+  evidence:[["출처","H.4.1 · FRED WMBSWSHO(MBS 보유)"],["읽는 법","통제 불가 배수구 — 상환이 금리에 좌우"],["신호","주택거래 얼면 런오프 둔화"]],
+  metric:c=>`MBS 보유 ${bn(c.mbs)} B`},
+ shower:{label:"비상 샤워 · 안전망",lec:"7강 SRF·BTFP·디스카운트",color:"#0891B2",
+  interp:"물이 갑자기 모자랄 때 트는 비상 급수. SRF·디스카운트 윈도우·SRP·BTFP(종료). 작년 9월 레포 발작 때 SRP 사용이 급증했다.",
+  evidence:[["출처","H.4.1 대출·레포 항목"],["읽는 법","평소 0에 가깝다가 사용량↑ = 자금시장 스트레스"],["신호","SRF 잔액 출현 = 준비금 희소 조짐"]]},
+ tub:{label:"욕조 물 · 연준 총자산",lec:"5강",color:C.waterDeep,
+  interp:"욕조에 담긴 물 전체 = 대차대조표 규모(약 $6.7조). 단, 담긴 물이 곧 흐르는 물은 아니다 — 위쪽 두 칸에 갇히는 게 있다.",
+  evidence:[["출처","FRED WALCL (백만 달러 단위 주의)"],["읽는 법","수도꼭지(매입) − 배수구(QT)의 순결과"],["신호","총자산↑여도 TGA·RRP가 빨아들이면 시장은 마름"]],
+  metric:c=>`$${tn(c.totalAssets)}조 = 국채 ${bn(c.treasuries)} + MBS ${bn(c.mbs)} + 기타`},
+ tga:{label:"물막이 칸 · TGA",lec:"3강 연준 vs 재무부",color:C.tga,
+  interp:"재무부 정부 통장. 여기 물이 차면 그만큼 시장에서 물이 빠진다. 4월 세금·국채 발행에 부풀어 순유동성을 누른다 — 연준이 안 줄여도 재무부가 빨아들이는 것.",
+  evidence:[["출처","FRED WTREGEN(주평균), 재무부 DTS(일별)"],["읽는 법","분기 리펀딩(QRA)에서 목표 잔액 예고"],["신호","1조 돌파 = 흡수 경계"]],
+  metric:c=>`${bn(c.tga)} B`},
+ rrp:{label:"물막이 칸 · RRP",lec:"2강·3강",color:C.rrp,
+  interp:"MMF가 하룻밤 돈을 맡기는 주차장이자 완충재. 한때 2조 넘었는데 지금은 바닥. 완충이 사라졌다 = TGA가 출렁이면 충격이 곧장 지급준비금을 때린다.",
+  evidence:[["출처","FRED RRPONTSYD (십억 단위 — TGA와 단위 다름, 함정!)"],["읽는 법","MMF가 RRP→사적 레포로 옮기면 잔액↓"],["신호","바닥 근처 = 더 뺄 완충 없음"]],
+  metric:c=>`${bn(c.rrp)} B`},
+ net:{label:"흐르는 물 · 순유동성",lec:"1강 유동성=흐르는 돈",color:C.net,
+  interp:"총자산 − TGA − RRP. 갇힌 물 빼고 실제 시장에 흐르는 물. 위험자산과 가장 잘 붙는 지표이자 이 도구의 주인공.",
+  evidence:[["출처","계산값: WALCL − WTREGEN − RRPONTSYD"],["읽는 법","주간 ±수백억은 노이즈, 추세를 봐"],["신호","추세 상승=위험선호↑ 경향(단 만능 아님)"]],
+  metric:c=>`$${tn(c.net)}조`},
+ reserves:{label:"수위 눈금 · 지급준비금",lec:"2강·4강",color:C.res,
+  interp:"은행이 연준에 맡겨둔 돈. 풍부 vs 희소 체제를 가르는 핵심 수위. 약 $2.5~2.7조 밑으로 가면 레포 시장 스트레스(2019년).",
+  evidence:[["출처","FRED WRESBAL"],["읽는 법","Waller 기준 GDP 8%(~$2.7조)가 경계선"],["신호","EFFR이 IORB 위로 뚫으면 적신호"]],
+  metric:c=>`${bn(c.reserves)} B`},
+ drain:{label:"배수구 · QT / 런오프",lec:"5강·6강",color:C.red,
+  interp:"만기 도래분을 재투자 안 하면 물이 빠진다. 국채 QT는 2025.12 종료. MBS만 졸졸 빠지는 중 — 통제 안 되는 배수구.",
+  evidence:[["출처","H.4.1 증권 만기 스케줄"],["읽는 법","국채 런오프 0, MBS 월 ~$15B"],["신호","런오프 재개 = 긴축 전환"]]},
+ thermometer:{label:"온도계 · 기준금리",lec:"4강 기준금리",color:C.red,
+  interp:"물 온도 = 정책금리. EFFR이 실제 온도, IORB가 천장, SRF가 상단, RRP금리가 하단. 네 금리가 수위가 흐르는 복도를 만든다.",
+  evidence:[["출처","뉴욕연준 reference rates(EFFR), IORB·ON RRP rate"],["읽는 법","EFFR이 복도 안이면 정상"],["신호","EFFR>IORB = 준비금 희소"]],
+  metric:c=>`EFFR ${c.effr??"—"}%`},
+ detergent:{label:"세제 선반 · 통화 통계",lec:"8강 본원통화·M1·M2",color:"#DB2777",
+  interp:"욕조 물(본원통화)과 시중에 풀린 농도(M1·M2)는 다르다. 본원통화는 연준이 만든 베이스, M2는 은행 신용까지 더한 광의 유동성.",
+  evidence:[["출처","FRED M2SL·M1SL(월), 연준 H.6"],["읽는 법","본원통화↑여도 신용 안 돌면 M2 정체"],["신호","M2 증가율 = 광의 유동성 방향타"]],
+  metric:c=>`M2 ${c.m2?"$"+tn(c.m2)+"조":"—"}`},
+ soap:{label:"비누 거품 · 신용 창조",lec:"9강 화폐발행·신용창조",color:"#0D9488",
+  interp:"비누로 거품 내듯 은행은 대출을 일으켜 예금을 창조한다(부분지급준비). 욕조 물이 거품으로 부푼 부분 = 신용. 통화승수는 옛 개념이라 한계.",
+  evidence:[["출처","FRED 은행 대출·예금 H.8"],["읽는 법","대출↑=거품 팽창, 긴축기엔 꺼짐"],["신호","신용 위축=본원통화 풀어도 시중 마름"]]},
+ window:{label:"창문 밖 바다 · 글로벌 달러",lec:"10강 유로달러·스왑라인",color:C.sea,
+  interp:"욕조 밖엔 훨씬 큰 바다(유로달러=미국 밖 달러)가 있다. 연준 스왑라인은 그 바다로 물을 내보내는 호스. 글로벌 달러 부족이 오면 스왑 급증(2020).",
+  evidence:[["출처","H.4.1 중앙은행 유동성 스왑"],["읽는 법","DXY·크로스커런시 베이시스로 확인"],["신호","스왑 급증 = 글로벌 달러 경색"]]},
+};
+const cur=()=>data[idx], prev=()=>idx>0?data[idx-1]:null;
+function regime(c){if(c.reserves>=3000)return{k:"풍부",col:C.net};if(c.reserves>=2700)return{k:"중립",col:C.tga};return{k:"희소",col:C.red};}
+function speeches(c){
+ const fed="QT는 끝(2025.12). 지금은 RMP·MBS 재투자로 졸졸 보충 중이야.";
+ const tre=c.tga>=1000?"통장에 1조 넘게 쌓았어 — 그만큼 시장 물을 빼간 거야 💸":c.tga>=900?"통장 채우는 중. 순유동성이 눌려.":"통장 좀 풀었어 — 시장에 물이 도로 흐르는 국면.";
+ const bank=c.reserves>=3000?"준비금 넉넉, 아직 풍부 체제야.":c.reserves>=2700?"여유는 있는데 더 줄면 긴장돼.":"준비금 빠듯 ⚠️ 레포 발작 주의선이야.";
+ return [
+  {who:"연준",emoji:"🏛️",col:C.water,msg:fed,pos:"left:24%;top:37%"},
+  {who:"재무부",emoji:"💵",col:"#B5820B",msg:tre,pos:"right:2%;top:50%"},
+  {who:"은행",emoji:"🏦",col:C.res,msg:bank,pos:"left:0%;bottom:20%"},
+ ];
+}
+const esc=s=>String(s).replace(/[&<>"]/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[m]));
+
+/* ── 욕조 SVG ── */
+function tubSVG(){
+ const c=cur();const W=560,H=470,tx=150,ty=250,tw=360,th=170,cap=7200;
+ const wFrac=Math.min(1,c.totalAssets/cap),wH=(th-14)*wFrac,wY=ty+(th-14-wH)+7;
+ const tgaH=wH*(c.tga/c.totalAssets),rrpH=wH*(c.rrp/c.totalAssets);
+ const tgaY=wY,rrpY=wY+tgaH,netY=rrpY+rrpH;
+ const hl=k=>sel===k?"#0f2a36":"transparent", sw=k=>sel===k?2.4:0;
+ const drop=(x,flow,top)=>(reduce||flow<=0)?"":[0,1,2].map(i=>`<circle cx="${x-6}" r="${1.6+flow*.5}" fill="${C.water}" opacity=".8"><animate attributeName="cy" from="${200+11}" to="${top}" dur="${1.5-flow*.2}s" begin="${i*.4}s" repeatCount="indefinite"/><animate attributeName="opacity" from=".85" to="0" dur="${1.5-flow*.2}s" begin="${i*.4}s" repeatCount="indefinite"/></circle>`).join("");
+ const faucet=(x,k,label,flow)=>`<g data-part="${k}" style="cursor:pointer">
+   <rect x="${x-16}" y="200" width="40" height="11" rx="4" fill="url(#chrome)" stroke="${hl(k)}" stroke-width="${sw(k)?2:0}"/>
+   <rect x="${x+6}" y="184" width="10" height="18" rx="3" fill="url(#chrome)"/>
+   ${drop(x,flow,wY)}
+   <text x="${x+2}" y="178" fill="${sel===k?C.text:C.muted}" font-size="10" font-weight="${sel===k?700:400}" text-anchor="middle" font-family="${MONO}">${label}</text></g>`;
+ const wavePath=(x,y,w,amp)=>{const s=w/8;return `M${x},${y} q${s/2},${-amp} ${s},0 t${s},0 t${s},0 t${s},0 t${s},0 t${s},0 t${s},0 t${s},0 V${y+260} H${x} Z`;};
+ return `<svg viewBox="0 0 ${W} ${H}" width="100%" style="display:block;max-height:470px">
+ <defs>
+  <pattern id="tile" width="46" height="46" patternUnits="userSpaceOnUse"><rect width="46" height="46" fill="#fff"/><rect width="44" height="44" x="1" y="1" fill="#F0F6F9" rx="3"/></pattern>
+  <linearGradient id="chrome" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#D9E4EA"/><stop offset="50%" stop-color="#9FB0BA"/><stop offset="100%" stop-color="#7C8C96"/></linearGradient>
+  <linearGradient id="porc" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#fff"/><stop offset="100%" stop-color="#FBFDFE"/></linearGradient>
+ </defs>
+ <rect x="0" y="0" width="${W}" height="${H-30}" fill="url(#tile)"/>
+ <rect x="0" y="${H-30}" width="${W}" height="30" fill="#E7DFD4"/>
+ <g data-part="window" style="cursor:pointer">
+  <rect x="${W-118}" y="28" width="92" height="70" rx="6" fill="#BFE6F6" stroke="${sel==="window"?hl("window"):"#9FC9DC"}" stroke-width="${sel==="window"?2.4:1.5}"/>
+  <rect x="${W-114}" y="64" width="84" height="30" fill="${C.sea}" opacity=".6"/>
+  ${reduce?"":`<rect x="${W-114}" y="62" width="84" height="5" fill="#fff" opacity=".5" class="wv2x"/>`}
+  <line x1="${W-72}" y1="28" x2="${W-72}" y2="98" stroke="#9FC9DC"/><line x1="${W-118}" y1="63" x2="${W-26}" y2="63" stroke="#9FC9DC"/>
+  <text x="${W-72}" y="114" fill="${C.muted}" font-size="9.5" text-anchor="middle" font-family="${MONO}">유로달러 바다</text></g>
+ <rect x="30" y="150" width="210" height="9" rx="3" fill="#E3CBA9"/>
+ <g data-part="detergent" style="cursor:pointer">
+  <rect x="48" y="108" width="26" height="42" rx="4" fill="#F7B8D4" stroke="${hl("detergent")}" stroke-width="${sw("detergent")}"/>
+  <rect x="52" y="${138-26*(c.m2?Math.min(1,c.m2/24000):.2)}" width="18" height="${26*(c.m2?Math.min(1,c.m2/24000):.2)}" fill="#DB2777" opacity=".7" rx="2"/>
+  <rect x="56" y="101" width="10" height="9" rx="2" fill="#DB2777"/>
+  <rect x="84" y="120" width="22" height="30" rx="4" fill="#FBD38D" stroke="${hl("detergent")}" stroke-width="${sw("detergent")}"/>
+  <text x="78" y="172" fill="${C.muted}" font-size="9.5" text-anchor="middle" font-family="${MONO}">통화통계 M1·M2</text></g>
+ <g data-part="soap" style="cursor:pointer">
+  <ellipse cx="150" cy="144" rx="18" ry="9" fill="#7DD3C4" stroke="${hl("soap")}" stroke-width="${sw("soap")}"/>
+  ${reduce?"":[0,1,2].map(i=>`<circle cx="${140+i*10}" cy="${132-i*3}" r="${4-i}" fill="#A7F3D0" opacity=".85"><animate attributeName="cy" values="${132-i*3};${122-i*3};${132-i*3}" dur="${2+i*.4}s" repeatCount="indefinite"/></circle>`).join("")}
+  <text x="150" y="172" fill="${C.muted}" font-size="9.5" text-anchor="middle" font-family="${MONO}">신용창조 거품</text></g>
+ <g data-part="thermometer" style="cursor:pointer">
+  <rect x="${W-150}" y="150" width="12" height="120" rx="6" fill="#fff" stroke="${sel==="thermometer"?hl("thermometer"):"#CBD9E1"}" stroke-width="${sel==="thermometer"?2.4:1.4}"/>
+  <rect x="${W-149}" y="${150+116-116*Math.min(1,(c.effr||0)/6)}" width="10" height="${116*Math.min(1,(c.effr||0)/6)}" rx="5" fill="${C.red}" opacity=".85"/>
+  <circle cx="${W-144}" cy="278" r="12" fill="${C.red}"/>
+  <text x="${W-144}" y="300" fill="${C.muted}" font-size="9.5" text-anchor="middle" font-family="${MONO}">금리 ${c.effr??"—"}%</text></g>
+ ${faucet(tx+60,"faucet_qe","QE",c.totalAssets?3:0)}
+ ${faucet(tx+150,"faucet_rmp","RMP",2)}
+ ${faucet(tx+240,"faucet_mbs","MBS",1)}
+ <g data-part="shower" style="cursor:pointer">
+  <rect x="${tx+tw-36}" y="150" width="6" height="70" fill="url(#chrome)"/>
+  <path d="M${tx+tw-50},220 q17,-14 34,0 z" fill="url(#chrome)" stroke="${hl("shower")}" stroke-width="${sw("shower")}"/>
+  <text x="${tx+tw-33}" y="144" fill="${C.muted}" font-size="9.5" text-anchor="middle" font-family="${MONO}">안전망</text></g>
+ <g data-part="tub" style="cursor:pointer">
+  <rect x="${tx-10}" y="${ty-8}" width="${tw+20}" height="${th+22}" rx="30" fill="url(#porc)" stroke="${sel==="tub"?hl("tub"):C.porcEdge}" stroke-width="${sel==="tub"?2.4:2}"/>
+  <rect x="${tx}" y="${ty}" width="${tw}" height="${th}" rx="22" fill="#EAF6FB"/></g>
+ <clipPath id="wc"><rect x="${tx+3}" y="${ty+3}" width="${tw-6}" height="${th-6}" rx="19"/></clipPath>
+ <g clip-path="url(#wc)">
+  <rect x="${tx}" y="${netY}" width="${tw}" height="${ty+th-netY}" fill="${C.water}"/>
+  <rect data-part="net" x="${tx}" y="${netY}" width="${tw}" height="${ty+th-netY}" fill="${C.net}" opacity=".26" style="cursor:pointer" stroke="${hl("net")}" stroke-width="${sw("net")}"/>
+  <rect data-part="rrp" x="${tx}" y="${rrpY}" width="${tw}" height="${rrpH}" fill="${C.rrp}" opacity=".85" style="cursor:pointer" stroke="${hl("rrp")}" stroke-width="${sw("rrp")}"/>
+  <rect data-part="tga" x="${tx}" y="${tgaY}" width="${tw}" height="${tgaH}" fill="${C.tga}" opacity=".88" style="cursor:pointer" stroke="${hl("tga")}" stroke-width="${sw("tga")}"/>
+  <g class="wave"><path d="${wavePath(tx-50,wY,tw+100,5)}" fill="${C.surface}" opacity=".7"/><path d="${wavePath(tx-50,wY+3,tw+100,4)}" fill="${C.surface}" opacity=".4"/></g></g>
+ ${tgaH>13?`<text x="${tx+tw-10}" y="${tgaY+tgaH/2+4}" fill="#5a3d05" font-size="10.5" font-weight="700" text-anchor="end" font-family="${MONO}">TGA</text>`:""}
+ ${ty+th-14>netY+18?`<text x="${tx+12}" y="${ty+th-14}" fill="#063b30" font-size="11.5" font-weight="700" font-family="${MONO}">순유동성</text>`:""}
+ <g data-part="reserves" style="cursor:pointer">
+  <rect x="${tx+tw+16}" y="${ty}" width="15" height="${th}" rx="5" fill="#fff" stroke="${sel==="reserves"?hl("reserves"):C.porcEdge}" stroke-width="${sel==="reserves"?2.4:1.4}"/>
+  <rect x="${tx+tw+16}" y="${ty+th-th*Math.min(1,c.reserves/3600)}" width="15" height="${th*Math.min(1,c.reserves/3600)}" rx="5" fill="${C.res}" opacity=".85"/>
+  <line x1="${tx+tw+13}" y1="${ty+th-th*(2700/3600)}" x2="${tx+tw+34}" y2="${ty+th-th*(2700/3600)}" stroke="${C.red}" stroke-width="1.4" stroke-dasharray="3 2"/>
+  <text x="${tx+tw+23}" y="${ty+th-th*(2700/3600)-4}" fill="${C.red}" font-size="8" text-anchor="middle" font-family="${MONO}">위험선</text>
+  <text x="${tx+tw+23}" y="${ty-6}" fill="${C.res}" font-size="9.5" text-anchor="middle" font-family="${MONO}">지준</text></g>
+ <g data-part="drain" style="cursor:pointer">
+  <ellipse cx="${tx+tw/2}" cy="${ty+th+16}" rx="22" ry="6" fill="#fff" stroke="${sel==="drain"?hl("drain"):C.porcEdge}" stroke-width="${sel==="drain"?2.4:1.4}"/>
+  <ellipse cx="${tx+tw/2}" cy="${ty+th+16}" rx="10" ry="3" fill="${C.red}" opacity=".5" class="swirl" style="transform-origin:${tx+tw/2}px ${ty+th+16}px"/>
+  <text x="${tx+tw/2}" y="${ty+th+40}" fill="${C.muted}" font-size="9.5" text-anchor="middle" font-family="${MONO}">QT · MBS 런오프</text></g>
+ </svg>`;
+}
+
+function render(){
+ const c=cur(),p=prev();
+ document.getElementById("rateBadge").textContent="기준금리 "+(c.effr??"—")+"%";
+ const reg=regime(c),up=p?c.net-p.net>=0:true,head=c.reserves-2700;
+ document.getElementById("diag").innerHTML=
+  `<span class="regimepill" style="background:${reg.col}">● ${reg.k} 체제</span>`+
+  `<span class="chip">지준 $${tn(c.reserves)}조 · 위험선까지 ${head>=0?"+":""}${tn(head)}조</span>`+
+  `<span class="chip">순유동성 $${tn(c.net)}조 ${up?"▲ 늘어나는 중":"▼ 줄어드는 중"}</span>`+
+  `<span class="chip">완충 RRP ${c.rrp<=60?"거의 바닥":"여유 있음"}</span>`;
+ const bub=speeches(c).map(s=>`<div class="bubble" style="${s.pos}"><div class="bubrow"><span class="bubemoji">${s.emoji}</span><div><div class="bubwho" style="color:${s.col}">${s.who}</div><div class="bubmsg">${esc(s.msg)}</div></div></div>`).join("");
+ document.getElementById("tub").innerHTML=tubSVG();
+ [...document.querySelectorAll(".bubble")].forEach(e=>e.remove());
+ document.getElementById("tubwrap").insertAdjacentHTML("beforeend",bub);
+ document.getElementById("netBig").innerHTML=
+  `<div style="display:flex;align-items:baseline;gap:8px;margin-top:2px"><span style="font-family:${MONO};font-size:38px;font-weight:700;color:${C.net};line-height:1">$${tn(c.net)}조</span>`+
+  (p?`<span style="font-family:${MONO};font-size:14px;color:${c.net-p.net>=0?C.net:C.red}">${c.net-p.net>=0?"▲":"▼"} ${Math.abs(Math.round(c.net-p.net))}B</span>`:"")+`</div>`;
+ document.getElementById("netFormula").textContent=`= 총자산 $${tn(c.totalAssets)}조 − TGA ${bn(c.tga)} − RRP ${bn(c.rrp)}`;
+ document.getElementById("netMeta").innerHTML=`<span style="color:${C.muted}">기준 ${c.d}</span><span style="color:${c.live?C.net:C.tga}">${c.live?"● 입력값":"● 예시"}</span>`;
+ const bar=(n,v,col,k)=>`<div class="barwrap" data-part="${k}"><div class="barhead"><span style="color:${sel===k?col:C.text};font-weight:${sel===k?700:500}">${n}</span><span style="font-family:${MONO};color:${C.muted}">${bn(v)} B</span></div><div class="bartrack" style="${sel===k?`outline:1px solid ${col}`:""}"><div class="barfill" style="width:${v/c.totalAssets*100}%;background:${col}"></div></div></div>`;
+ document.getElementById("bars").innerHTML=bar("지급준비금",c.reserves,C.res,"reserves")+bar("TGA (재무부)",c.tga,C.tga,"tga")+bar("RRP (MMF)",c.rrp,C.rrp,"rrp");
+ const pt=PARTS[sel];
+ document.getElementById("interp").style.borderColor=pt.color+"66";
+ document.getElementById("interp").innerHTML=
+  `<div style="display:flex;justify-content:space-between;align-items:center"><span style="font-weight:800;font-size:15px;color:${pt.color}">${pt.label}</span><span style="font-family:${MONO};font-size:10px;color:${pt.color};border:1px solid ${pt.color}55;border-radius:5px;padding:2px 6px">${pt.lec}</span></div>`+
+  `<div style="margin-top:9px"><span class="minitag" style="color:${pt.color};border-color:${pt.color}44">해석</span><div style="font-size:12.8px;color:${C.text};line-height:1.6;margin-top:5px">${esc(pt.interp)}</div></div>`+
+  `<div class="evbox"><span class="minitag" style="color:${C.muted};border-color:${C.muted}44">데이터 · 근거</span>`+
+  (pt.metric?`<div style="font-family:${MONO};font-size:12.5px;color:${pt.color};margin:6px 0 8px">지금: ${esc(pt.metric(c))}</div>`:"")+
+  pt.evidence.map(([k,v])=>`<div class="evrow"><span class="evk">${k}</span><span style="color:${C.text}">${esc(v)}</span></div>`).join("")+`</div>`;
+ document.getElementById("chart").innerHTML=chartSVG();
+ const r=document.getElementById("weekRange");r.max=data.length-1;r.value=idx;
+ document.getElementById("rangeLabels").innerHTML=`<span>${data[0].d}</span><span style="color:${C.water}">◀ ${c.d} ▶</span><span>${data[data.length-1].d}</span>`;
+}
+
+function chartSVG(){
+ const W=700,H=210,pl=42,pr=42,pt=10,pb=24;
+ const xs=i=>pl+(W-pl-pr)*(data.length<2?.5:i/(data.length-1));
+ const nets=data.map(d=>d.net),tgas=data.map(d=>d.tga);
+ const nMin=Math.min(...nets)-30,nMax=Math.max(...nets)+30,tMin=Math.min(...tgas)-30,tMax=Math.max(...tgas)+30;
+ const yN=v=>pt+(H-pt-pb)*(1-(v-nMin)/(nMax-nMin||1));
+ const yT=v=>pt+(H-pt-pb)*(1-(v-tMin)/(tMax-tMin||1));
+ const netLine=data.map((d,i)=>`${xs(i)},${yN(d.net)}`).join(" ");
+ const netArea=`${pl},${H-pb} ${netLine} ${xs(data.length-1)},${H-pb}`;
+ const tgaLine=data.map((d,i)=>`${xs(i)},${yT(d.tga)}`).join(" ");
+ const grid=[0,.5,1].map(f=>{const y=pt+(H-pt-pb)*f;return `<line x1="${pl}" y1="${y}" x2="${W-pr}" y2="${y}" stroke="${C.line}"/>`;}).join("");
+ const xlab=data.map((d,i)=>(i%2===0||i===data.length-1)?`<text x="${xs(i)}" y="${H-7}" fill="${C.muted}" font-size="10" text-anchor="middle" font-family="${MONO}">${d.d}</text>`:"").join("");
+ const hit=data.map((d,i)=>`<rect data-week="${i}" x="${xs(i)-((W-pl-pr)/(data.length-1||1))/2}" y="0" width="${(W-pl-pr)/(data.length-1||1)}" height="${H}" fill="transparent" style="cursor:pointer"/>`).join("");
+ const curX=xs(idx);
+ return `<svg viewBox="0 0 ${W} ${H}" width="100%" style="display:block">
+  <defs><linearGradient id="gn" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="${C.net}" stop-opacity=".4"/><stop offset="100%" stop-color="${C.net}" stop-opacity=".04"/></linearGradient></defs>
+  ${grid}
+  <line x1="${curX}" y1="${pt}" x2="${curX}" y2="${H-pb}" stroke="${C.water}" stroke-dasharray="3 3"/>
+  <polygon points="${netArea}" fill="url(#gn)"/>
+  <polyline points="${netLine}" fill="none" stroke="${C.net}" stroke-width="2.4"/>
+  <polyline points="${tgaLine}" fill="none" stroke="${C.tga}" stroke-width="1.8" stroke-dasharray="4 3"/>
+  <circle cx="${curX}" cy="${yN(cur().net)}" r="4" fill="${C.net}"/>
+  ${xlab}${hit}
+  <text x="${pl}" y="${pt+8}" fill="${C.net}" font-size="9.5" font-family="${MONO}">순유동성(조)</text>
+  <text x="${W-pr}" y="${pt+8}" fill="${C.tga}" font-size="9.5" text-anchor="end" font-family="${MONO}">TGA(B)</text>
+ </svg>`;
+}
+
+/* ── 데이터 입력 폼 ── */
+const FIELDS=[["d","날짜","06/17"],["totalAssets","총자산","6700"],["treasuries","국채","4196"],["mbs","MBS","2178"],["tga","TGA","860"],["rrp","RRP","40"],["reserves","지급준비금","3010"],["effr","EFFR %","3.83"],["m2","M2","22090"]];
+let formOpen=false;
+function renderForm(){
+ const box=document.getElementById("formBox");
+ if(!formOpen){box.innerHTML="";return;}
+ const last=data[data.length-1];
+ box.innerHTML=`<div class="card" style="margin-top:12px"><div class="tag">주간 데이터 입력 · FRED에서 보고 직접</div>
+  <div class="formgrid">${FIELDS.map(([k,lab,ph])=>`<label style="font-size:11px;color:${C.muted}">${lab}<input class="inp" id="f_${k}" placeholder="${ph}" value="${k==="d"?"":esc(last[k]??"")}"></label>`).join("")}</div>
+  <div style="display:flex;gap:8px;align-items:center;margin-top:11px;flex-wrap:wrap">
+   <button class="btn" id="addRow">＋ 이번 주 추가</button>
+   <button class="btn ghost" id="delRow">🗑 마지막 주 삭제</button>
+   <button class="btn ghost" id="clearSeed">예시 지우고 내 데이터만</button>
+   <span id="formMsg" style="font-size:12px;color:${C.net};font-family:${MONO}"></span></div>
+  <div style="font-size:10.5px;color:${C.soft};margin-top:8px;line-height:1.5">FRED 시리즈 — 총자산 WALCL · 국채 WSHOSHO · MBS WMBSWSHO · TGA WTREGEN · RRP RRPONTSYD · 지준 WRESBAL · M2 M2SL · EFFR. WALCL류는 백만, RRP는 십억 단위 — 모두 <b style="color:${C.text}">십억 달러($B)</b>로 환산해 넣어. 입력값은 이 브라우저 세션에만 저장돼.</div></div>`;
+ document.getElementById("addRow").onclick=addRow;
+ document.getElementById("delRow").onclick=()=>{if(data.length>1){data=data.slice(0,-1);idx=data.length-1;render();}};
+ document.getElementById("clearSeed").onclick=()=>{const live=data.filter(r=>r.live);if(live.length){data=live;idx=live.length-1;render();renderForm();}else msg("먼저 한 주 추가해.");};
+}
+function msg(t){const m=document.getElementById("formMsg");if(m){m.textContent=t;setTimeout(()=>m.textContent="",1700);}}
+function addRow(){
+ const g=k=>parseFloat(document.getElementById("f_"+k).value);
+ for(const k of ["totalAssets","tga","rrp","reserves"])if(!isFinite(g(k))){msg("총자산·TGA·RRP·지준은 숫자로.");return;}
+ const dv=document.getElementById("f_d").value.trim();
+ const row={d:dv||("wk"+(data.length+1)),live:true};
+ FIELDS.forEach(([k])=>{if(k!=="d"){const v=g(k);if(isFinite(v))row[k]=v;}});
+ row.net=row.totalAssets-row.tga-row.rrp;
+ data=[...data,row].slice(-26);idx=data.length-1;render();msg("추가됨 ✓");
+}
+
+/* ── 이벤트 ── */
+document.addEventListener("click",e=>{
+ const part=e.target.closest("[data-part]");if(part){sel=part.getAttribute("data-part");render();return;}
+ const wk=e.target.closest("[data-week]");if(wk){idx=+wk.getAttribute("data-week");render();}
+});
+document.getElementById("weekRange").addEventListener("input",e=>{idx=+e.target.value;render();});
+document.getElementById("toggleForm").addEventListener("click",()=>{formOpen=!formOpen;document.getElementById("toggleForm").textContent="⚙ 주간 데이터 입력 "+(formOpen?"▴":"▾");renderForm();});
+
+render();
+</script>
+</body>
+</html>
