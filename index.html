@@ -185,7 +185,17 @@ const PARTS={
 const cur=()=>data[idx], prev=()=>idx>0?data[idx-1]:null;
 function regime(c){if(c.reserves>=3000)return{k:"풍부",col:C.net};if(c.reserves>=2700)return{k:"중립",col:C.tga};return{k:"희소",col:C.red};}
 function speeches(c){
- const fed="QT는 끝(2025.12). 국채는 재투자로 유지, RMP로 졸졸 보충 중. MBS는 천천히 런오프되는 중이야.";
+ const p=prev();
+ let fed;
+ if(!p){
+  fed="QT는 끝(2025.12). 국채는 재투자로 유지, RMP로 졸졸 보충 중. MBS는 천천히 런오프되는 중이야.";
+ }else{
+  const dTA=c.totalAssets-p.totalAssets,dTre=c.treasuries-p.treasuries,dMBS=c.mbs-p.mbs;
+  const taP=dTA>15?"이번 주 자산을 늘렸어 — 완화 쪽":dTA<-15?"이번 주 자산을 줄였어 — 긴축(QT) 쪽":"자산은 거의 유지(중립)";
+  const treP=dTre>6?"국채는 늘리는 중":dTre<-6?"국채는 런오프 중":"국채는 재투자로 유지";
+  const mbsP=dMBS<-3?"MBS는 런오프 중":dMBS>3?"MBS는 늘리는 중":"MBS는 거의 변동 없어";
+  fed=`${taP}. ${treP}, ${mbsP}.`;
+ }
  const tre=c.tga>=1000?"통장에 1조 넘게 쌓았어 — 그만큼 시장 물을 빼간 거야 💸":c.tga>=900?"통장 채우는 중. 순유동성이 눌려.":"통장 좀 풀었어 — 시장에 물이 도로 흐르는 국면.";
  const bank=c.reserves>=3000?"준비금 넉넉, 아직 풍부 체제야.":c.reserves>=2700?"여유는 있는데 더 줄면 긴장돼.":"준비금 빠듯 ⚠️ 레포 발작 주의선이야.";
  return [
