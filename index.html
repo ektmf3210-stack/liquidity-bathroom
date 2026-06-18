@@ -38,8 +38,9 @@
   .range::-webkit-slider-thumb{-webkit-appearance:none;width:18px;height:18px;border-radius:50%;background:var(--water);cursor:pointer;border:2px solid #fff;box-shadow:0 0 0 1px var(--water)}
   .range::-moz-range-thumb{width:16px;height:16px;border-radius:50%;background:var(--water);cursor:pointer;border:2px solid #fff}
   .tubwrap{position:relative;max-width:620px;margin:0 auto}
-  .bubble{position:absolute;background:#ffffffee;border:1px solid #C9DDE7;border-radius:13px;padding:7px 9px;max-width:165px;box-shadow:0 5px 16px #17334122;backdrop-filter:blur(2px);pointer-events:none}
-  @media(max-width:520px){.bubble{max-width:120px;padding:5px 7px}}
+  .speakers{display:flex;gap:8px;margin-top:11px}
+  @media(max-width:560px){.speakers{flex-wrap:wrap}}
+  .spk{flex:1;min-width:140px;background:#fff;border:1px solid #C9DDE7;border-radius:11px;padding:8px 10px;box-shadow:0 2px 6px #1733410f}
   .bubrow{display:flex;gap:6px;align-items:flex-start}
   .bubemoji{font-size:17px;line-height:1}.bubwho{font-family:var(--mono);font-size:9.5px;font-weight:700}
   .bubmsg{font-size:10.6px;color:var(--text);line-height:1.4;margin-top:1px}
@@ -74,6 +75,7 @@
     <div class="tubwrap" id="tubwrap">
       <div id="tub"></div>
     </div>
+    <div class="speakers" id="speakers"></div>
     <div style="margin-top:10px">
       <div style="display:flex;justify-content:space-between;font-size:11px;color:var(--muted);font-family:var(--mono)" id="rangeLabels"></div>
       <input type="range" class="range" id="weekRange" min="0" value="0">
@@ -97,8 +99,8 @@
 
 <div class="card" style="margin-top:13px">
   <div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:6px">
-    <div class="tag">추이 · 순유동성(초록) vs TGA(노랑)</div>
-    <span style="font-size:11px;color:var(--muted)">TGA가 부풀면 순유동성이 빠진다 — 클릭해 그 주로 이동</span>
+    <div class="tag">추이 · 유동성 vs 자산 (시작주=100 기준)</div>
+    <span style="font-size:11px;color:var(--muted)">순유동성·나스닥·비트코인의 상대 흐름 — 클릭해 그 주로 이동</span>
   </div>
   <div id="chart"></div>
 </div>
@@ -113,15 +115,15 @@
 const C={water:"#22A5C4",waterDeep:"#0E7490",surface:"#7DD3FC",net:"#10B981",tga:"#F59E0B",rrp:"#8B5CF6",res:"#2563EB",red:"#EF4444",sea:"#3BA7D9",muted:"#5F7B8B",soft:"#86A0AE",text:"#173341",line:"#D9E6ED",bg:"#E8F2F6",porcEdge:"#CADCE5",chrome:"#9FB0BA"};
 const MONO="ui-monospace,'SF Mono','JetBrains Mono',Menlo,monospace";
 let data=[
- {d:"04/15",totalAssets:6670,treasuries:4180,mbs:2210,tga:1010,rrp:40,reserves:2860,effr:3.83,m2:21850},
- {d:"04/22",totalAssets:6668,treasuries:4178,mbs:2206,tga:960,rrp:42,reserves:2900,effr:3.83,m2:21880},
- {d:"04/29",totalAssets:6672,treasuries:4180,mbs:2202,tga:880,rrp:48,reserves:2980,effr:3.83,m2:21920},
- {d:"05/06",totalAssets:6675,treasuries:4182,mbs:2198,tga:850,rrp:50,reserves:3010,effr:3.83,m2:21950},
- {d:"05/13",totalAssets:6678,treasuries:4185,mbs:2194,tga:830,rrp:52,reserves:3030,effr:3.83,m2:21980},
- {d:"05/20",totalAssets:6680,treasuries:4186,mbs:2190,tga:870,rrp:45,reserves:2995,effr:3.83,m2:22010},
- {d:"05/27",totalAssets:6685,treasuries:4189,mbs:2186,tga:900,rrp:40,reserves:2965,effr:3.83,m2:22030},
- {d:"06/03",totalAssets:6690,treasuries:4192,mbs:2182,tga:880,rrp:38,reserves:2990,effr:3.83,m2:22060},
- {d:"06/10",totalAssets:6700,treasuries:4196,mbs:2178,tga:860,rrp:40,reserves:3010,effr:3.83,m2:22090},
+ {d:"04/15",totalAssets:6670,treasuries:4180,mbs:2210,tga:1010,rrp:40,reserves:2860,effr:3.83,m2:21850,nasdaq:20400,btc:92000},
+ {d:"04/22",totalAssets:6668,treasuries:4178,mbs:2206,tga:960,rrp:42,reserves:2900,effr:3.83,m2:21880,nasdaq:20300,btc:90000},
+ {d:"04/29",totalAssets:6672,treasuries:4180,mbs:2202,tga:880,rrp:48,reserves:2980,effr:3.83,m2:21920,nasdaq:20550,btc:94000},
+ {d:"05/06",totalAssets:6675,treasuries:4182,mbs:2198,tga:850,rrp:50,reserves:3010,effr:3.83,m2:21950,nasdaq:20800,btc:97000},
+ {d:"05/13",totalAssets:6678,treasuries:4185,mbs:2194,tga:830,rrp:52,reserves:3030,effr:3.83,m2:21980,nasdaq:20700,btc:96000},
+ {d:"05/20",totalAssets:6680,treasuries:4186,mbs:2190,tga:870,rrp:45,reserves:2995,effr:3.83,m2:22010,nasdaq:21000,btc:101000},
+ {d:"05/27",totalAssets:6685,treasuries:4189,mbs:2186,tga:900,rrp:40,reserves:2965,effr:3.83,m2:22030,nasdaq:21150,btc:104000},
+ {d:"06/03",totalAssets:6690,treasuries:4192,mbs:2182,tga:880,rrp:38,reserves:2990,effr:3.83,m2:22060,nasdaq:21050,btc:102000},
+ {d:"06/10",totalAssets:6700,treasuries:4196,mbs:2178,tga:860,rrp:40,reserves:3010,effr:3.83,m2:22090,nasdaq:21350,btc:108000},
 ].map(r=>({...r,net:r.totalAssets-r.tga-r.rrp,live:false}));
 let idx=data.length-1, sel="net";
 const tn=b=>(b/1000).toFixed(2), bn=b=>Math.round(b).toLocaleString();
@@ -279,10 +281,9 @@ function render(){
   `<span class="chip">지준 $${tn(c.reserves)}조 · 위험선까지 ${head>=0?"+":""}${tn(head)}조</span>`+
   `<span class="chip">순유동성 $${tn(c.net)}조 ${up?"▲ 늘어나는 중":"▼ 줄어드는 중"}</span>`+
   `<span class="chip">완충 RRP ${c.rrp<=60?"거의 바닥":"여유 있음"}</span>`;
- const bub=speeches(c).map(s=>`<div class="bubble" style="${s.pos}"><div class="bubrow"><span class="bubemoji">${s.emoji}</span><div><div class="bubwho" style="color:${s.col}">${s.who}</div><div class="bubmsg">${esc(s.msg)}</div></div></div>`).join("");
+ const bub=speeches(c).map(s=>`<div class="spk"><div class="bubrow"><span class="bubemoji">${s.emoji}</span><div><div class="bubwho" style="color:${s.col}">${s.who}</div><div class="bubmsg">${esc(s.msg)}</div></div></div></div>`).join("");
  document.getElementById("tub").innerHTML=tubSVG();
- [...document.querySelectorAll(".bubble")].forEach(e=>e.remove());
- document.getElementById("tubwrap").insertAdjacentHTML("beforeend",bub);
+ document.getElementById("speakers").innerHTML=bub;
  document.getElementById("netBig").innerHTML=
   `<div style="display:flex;align-items:baseline;gap:8px;margin-top:2px"><span style="font-family:${MONO};font-size:38px;font-weight:700;color:${C.net};line-height:1">$${tn(c.net)}조</span>`+
   (p?`<span style="font-family:${MONO};font-size:14px;color:${c.net-p.net>=0?C.net:C.red}">${c.net-p.net>=0?"▲":"▼"} ${Math.abs(Math.round(c.net-p.net))}B</span>`:"")+`</div>`;
@@ -304,35 +305,34 @@ function render(){
 }
 
 function chartSVG(){
- const W=700,H=210,pl=42,pr=42,pt=10,pb=24;
+ const W=700,H=210,pl=30,pr=14,pt=20,pb=24;
  const xs=i=>pl+(W-pl-pr)*(data.length<2?.5:i/(data.length-1));
- const nets=data.map(d=>d.net),tgas=data.map(d=>d.tga);
- const nMin=Math.min(...nets)-30,nMax=Math.max(...nets)+30,tMin=Math.min(...tgas)-30,tMax=Math.max(...tgas)+30;
- const yN=v=>pt+(H-pt-pb)*(1-(v-nMin)/(nMax-nMin||1));
- const yT=v=>pt+(H-pt-pb)*(1-(v-tMin)/(tMax-tMin||1));
- const netLine=data.map((d,i)=>`${xs(i)},${yN(d.net)}`).join(" ");
- const netArea=`${pl},${H-pb} ${netLine} ${xs(data.length-1)},${H-pb}`;
- const tgaLine=data.map((d,i)=>`${xs(i)},${yT(d.tga)}`).join(" ");
- const grid=[0,.5,1].map(f=>{const y=pt+(H-pt-pb)*f;return `<line x1="${pl}" y1="${y}" x2="${W-pr}" y2="${y}" stroke="${C.line}"/>`;}).join("");
+ const base=data[0];
+ const series=[
+  {key:"net",col:C.net,name:"순유동성"},
+  {key:"nasdaq",col:"#6366F1",name:"나스닥"},
+  {key:"btc",col:"#F7931A",name:"비트코인"},
+ ].filter(s=>base[s.key]&&data.every(d=>isFinite(d[s.key])));
+ const norm=(d,k)=>d[k]/base[k]*100;
+ let vmin=100,vmax=100;
+ series.forEach(s=>data.forEach(d=>{const v=norm(d,s.key);if(v<vmin)vmin=v;if(v>vmax)vmax=v;}));
+ vmin-=2;vmax+=2;
+ const y=v=>pt+(H-pt-pb)*(1-(v-vmin)/(vmax-vmin||1));
+ const grid=[0,.5,1].map(f=>{const yy=pt+(H-pt-pb)*f;const val=(vmax-(vmax-vmin)*f).toFixed(0);return `<line x1="${pl}" y1="${yy}" x2="${W-pr}" y2="${yy}" stroke="${C.line}"/><text x="${pl-4}" y="${yy+3}" fill="${C.muted}" font-size="9" text-anchor="end" font-family="${MONO}">${val}</text>`;}).join("");
+ const lines=series.map(s=>`<polyline points="${data.map((d,i)=>`${xs(i)},${y(norm(d,s.key))}`).join(" ")}" fill="none" stroke="${s.col}" stroke-width="2.2"/>`).join("");
+ const dots=series.map(s=>`<circle cx="${xs(idx)}" cy="${y(norm(cur(),s.key))}" r="3.5" fill="${s.col}"/>`).join("");
  const xlab=data.map((d,i)=>(i%2===0||i===data.length-1)?`<text x="${xs(i)}" y="${H-7}" fill="${C.muted}" font-size="10" text-anchor="middle" font-family="${MONO}">${d.d}</text>`:"").join("");
  const hit=data.map((d,i)=>`<rect data-week="${i}" x="${xs(i)-((W-pl-pr)/(data.length-1||1))/2}" y="0" width="${(W-pl-pr)/(data.length-1||1)}" height="${H}" fill="transparent" style="cursor:pointer"/>`).join("");
- const curX=xs(idx);
+ const legend=series.map((s,i)=>`<g transform="translate(${pl+i*96},${pt-12})"><rect width="11" height="3" y="-3" rx="1.5" fill="${s.col}"/><text x="15" y="1" fill="${s.col}" font-size="10" font-family="${MONO}">${s.name}</text></g>`).join("");
  return `<svg viewBox="0 0 ${W} ${H}" width="100%" style="display:block">
-  <defs><linearGradient id="gn" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="${C.net}" stop-opacity=".4"/><stop offset="100%" stop-color="${C.net}" stop-opacity=".04"/></linearGradient></defs>
   ${grid}
-  <line x1="${curX}" y1="${pt}" x2="${curX}" y2="${H-pb}" stroke="${C.water}" stroke-dasharray="3 3"/>
-  <polygon points="${netArea}" fill="url(#gn)"/>
-  <polyline points="${netLine}" fill="none" stroke="${C.net}" stroke-width="2.4"/>
-  <polyline points="${tgaLine}" fill="none" stroke="${C.tga}" stroke-width="1.8" stroke-dasharray="4 3"/>
-  <circle cx="${curX}" cy="${yN(cur().net)}" r="4" fill="${C.net}"/>
-  ${xlab}${hit}
-  <text x="${pl}" y="${pt+8}" fill="${C.net}" font-size="9.5" font-family="${MONO}">순유동성(조)</text>
-  <text x="${W-pr}" y="${pt+8}" fill="${C.tga}" font-size="9.5" text-anchor="end" font-family="${MONO}">TGA(B)</text>
+  <line x1="${xs(idx)}" y1="${pt}" x2="${xs(idx)}" y2="${H-pb}" stroke="${C.water}" stroke-dasharray="3 3"/>
+  ${lines}${dots}${xlab}${hit}${legend}
  </svg>`;
 }
 
 /* ── 데이터 입력 폼 ── */
-const FIELDS=[["d","날짜","06/17"],["totalAssets","총자산","6700"],["treasuries","국채","4196"],["mbs","MBS","2178"],["tga","TGA","860"],["rrp","RRP","40"],["reserves","지급준비금","3010"],["effr","EFFR %","3.83"],["m2","M2","22090"]];
+const FIELDS=[["d","날짜","06/17"],["totalAssets","총자산","6700"],["treasuries","국채","4196"],["mbs","MBS","2178"],["tga","TGA","860"],["rrp","RRP","40"],["reserves","지급준비금","3010"],["effr","EFFR %","3.83"],["m2","M2","22090"],["nasdaq","나스닥","21350"],["btc","비트코인","108000"]];
 let formOpen=false;
 function renderForm(){
  const box=document.getElementById("formBox");
@@ -345,7 +345,7 @@ function renderForm(){
    <button class="btn ghost" id="delRow">🗑 마지막 주 삭제</button>
    <button class="btn ghost" id="clearSeed">예시 지우고 내 데이터만</button>
    <span id="formMsg" style="font-size:12px;color:${C.net};font-family:${MONO}"></span></div>
-  <div style="font-size:10.5px;color:${C.soft};margin-top:8px;line-height:1.5">FRED 시리즈 — 총자산 WALCL · 국채 WSHOSHO · MBS WMBSWSHO · TGA WTREGEN · RRP RRPONTSYD · 지준 WRESBAL · M2 M2SL · EFFR. WALCL류는 백만, RRP는 십억 단위 — 모두 <b style="color:${C.text}">십억 달러($B)</b>로 환산해 넣어. 입력값은 이 브라우저 세션에만 저장돼.</div></div>`;
+  <div style="font-size:10.5px;color:${C.soft};margin-top:8px;line-height:1.5">FRED 시리즈 — 총자산 WALCL · 국채 WSHOSHO · MBS WMBSWSHO · TGA WTREGEN · RRP RRPONTSYD · 지준 WRESBAL · M2 M2SL · EFFR. 나스닥·비트코인은 종가. WALCL류는 백만, RRP는 십억 단위 — 잔고는 모두 <b style="color:${C.text}">십억 달러($B)</b>로 환산해 넣어. 입력값은 이 브라우저 세션에만 저장돼.</div></div>`;
  document.getElementById("addRow").onclick=addRow;
  document.getElementById("delRow").onclick=()=>{if(data.length>1){data=data.slice(0,-1);idx=data.length-1;render();}};
  document.getElementById("clearSeed").onclick=()=>{const live=data.filter(r=>r.live);if(live.length){data=live;idx=live.length-1;render();renderForm();}else msg("먼저 한 주 추가해.");};
