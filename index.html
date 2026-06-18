@@ -115,16 +115,9 @@
 const C={water:"#22A5C4",waterDeep:"#0E7490",surface:"#7DD3FC",net:"#10B981",tga:"#F59E0B",rrp:"#8B5CF6",res:"#2563EB",red:"#EF4444",sea:"#3BA7D9",muted:"#5F7B8B",soft:"#86A0AE",text:"#173341",line:"#D9E6ED",bg:"#E8F2F6",porcEdge:"#CADCE5",chrome:"#9FB0BA"};
 const MONO="ui-monospace,'SF Mono','JetBrains Mono',Menlo,monospace";
 let data=[
- {d:"04/15",totalAssets:6670,treasuries:4180,mbs:2210,tga:1010,rrp:40,reserves:2860,effr:3.83,m2:21850,nasdaq:20400,btc:92000},
- {d:"04/22",totalAssets:6668,treasuries:4178,mbs:2206,tga:960,rrp:42,reserves:2900,effr:3.83,m2:21880,nasdaq:20300,btc:90000},
- {d:"04/29",totalAssets:6672,treasuries:4180,mbs:2202,tga:880,rrp:48,reserves:2980,effr:3.83,m2:21920,nasdaq:20550,btc:94000},
- {d:"05/06",totalAssets:6675,treasuries:4182,mbs:2198,tga:850,rrp:50,reserves:3010,effr:3.83,m2:21950,nasdaq:20800,btc:97000},
- {d:"05/13",totalAssets:6678,treasuries:4185,mbs:2194,tga:830,rrp:52,reserves:3030,effr:3.83,m2:21980,nasdaq:20700,btc:96000},
- {d:"05/20",totalAssets:6680,treasuries:4186,mbs:2190,tga:870,rrp:45,reserves:2995,effr:3.83,m2:22010,nasdaq:21000,btc:101000},
- {d:"05/27",totalAssets:6685,treasuries:4189,mbs:2186,tga:900,rrp:40,reserves:2965,effr:3.83,m2:22030,nasdaq:21150,btc:104000},
- {d:"06/03",totalAssets:6690,treasuries:4192,mbs:2182,tga:880,rrp:38,reserves:2990,effr:3.83,m2:22060,nasdaq:21050,btc:102000},
- {d:"06/10",totalAssets:6700,treasuries:4196,mbs:2178,tga:860,rrp:40,reserves:3010,effr:3.83,m2:22090,nasdaq:21350,btc:108000},
-].map(r=>({...r,net:r.totalAssets-r.tga-r.rrp,live:false}));
+ {d:"06/03",totalAssets:6711,treasuries:4469,mbs:1965,tga:846,rrp:2.062,reserves:3014,effr:3.62,m2:22804.5,nasdaq:26830.96,btc:65710},
+ {d:"06/10",totalAssets:6725,treasuries:4480,mbs:1965,tga:801,rrp:0.387,reserves:3081,effr:3.62,m2:22804.5,nasdaq:25809.66,btc:61531},
+].map(r=>({...r,net:r.totalAssets-r.tga-r.rrp,live:true}));
 let idx=data.length-1, sel="net";
 const tn=b=>(b/1000).toFixed(2), bn=b=>Math.round(b).toLocaleString();
 const reduce=window.matchMedia("(prefers-reduced-motion:reduce)").matches;
