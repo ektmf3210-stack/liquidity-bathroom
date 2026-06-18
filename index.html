@@ -185,7 +185,7 @@ const PARTS={
 const cur=()=>data[idx], prev=()=>idx>0?data[idx-1]:null;
 function regime(c){if(c.reserves>=3000)return{k:"풍부",col:C.net};if(c.reserves>=2700)return{k:"중립",col:C.tga};return{k:"희소",col:C.red};}
 function speeches(c){
- const fed="QT는 끝(2025.12). 지금은 RMP·MBS 재투자로 졸졸 보충 중이야.";
+ const fed="QT는 끝(2025.12). 국채는 재투자로 유지, RMP로 졸졸 보충 중. MBS는 천천히 런오프되는 중이야.";
  const tre=c.tga>=1000?"통장에 1조 넘게 쌓았어 — 그만큼 시장 물을 빼간 거야 💸":c.tga>=900?"통장 채우는 중. 순유동성이 눌려.":"통장 좀 풀었어 — 시장에 물이 도로 흐르는 국면.";
  const bank=c.reserves>=3000?"준비금 넉넉, 아직 풍부 체제야.":c.reserves>=2700?"여유는 있는데 더 줄면 긴장돼.":"준비금 빠듯 ⚠️ 레포 발작 주의선이야.";
  return [
