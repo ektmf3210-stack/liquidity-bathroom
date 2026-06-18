@@ -117,6 +117,7 @@ const MONO="ui-monospace,'SF Mono','JetBrains Mono',Menlo,monospace";
 let data=[
  {d:"06/03",totalAssets:6711,treasuries:4469,mbs:1965,tga:846,rrp:2.062,reserves:3014,effr:3.62,m2:22804.5,nasdaq:26830.96,btc:65710},
  {d:"06/10",totalAssets:6725,treasuries:4480,mbs:1965,tga:801,rrp:0.387,reserves:3081,effr:3.62,m2:22804.5,nasdaq:25809.66,btc:61531},
+ {d:"06/17",totalAssets:6736,treasuries:4487,mbs:1965,tga:957,rrp:6.828,reserves:3033,effr:3.62,m2:22804.5,nasdaq:26021.66,btc:63500},
 ].map(r=>({...r,net:r.totalAssets-r.tga-r.rrp,live:true}));
 let idx=data.length-1, sel="net";
 const tn=b=>(b/1000).toFixed(2), bn=b=>Math.round(b).toLocaleString();
